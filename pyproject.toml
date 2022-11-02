@@ -23,3 +23,6 @@ dependencies = []
 
 [project.urls]
 "Homepage" = "https://github.com/fr4h4g/scheduleplus-python"
+
+[project.optional-dependencies]
+dev = ["black", "flake8", "pytest", "invoke", "pytest-cov"]
