@@ -15,3 +15,4 @@ def test_parse_minute():
     assert parse_minute("40,55") == [40, 55]
     assert parse_minute("40,55,40,55") == [40, 55]
     assert parse_minute("55,40") == [40, 55]
+    assert parse_minute("0-5/2,10-12,20,22") == [0, 2, 4, 10, 11, 12, 20, 22]
