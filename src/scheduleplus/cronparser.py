@@ -27,7 +27,15 @@ ALIASES = {
     "@hourly": "0 * * * *",
 }
 
-ISODAYS = {"sun": 0, "mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6}
+ISODAYS = {
+    "mon": 0,
+    "tue": 1,
+    "wed": 2,
+    "thu": 3,
+    "fri": 4,
+    "sat": 5,
+    "sun": 6,
+}
 MONTHS = {
     "jan": 1,
     "feb": 2,
@@ -50,6 +58,8 @@ class CronParser:
         self._next_run_time = datetime.datetime.now()
         if now:
             self._next_run_time = now
+        self._next_run_time = self._next_run_time.replace(second=0, microsecond=0)
+        # self._next_run_time = self._next_run_time + timedelta(minutes=1)
 
     def _trim_extra_whitespace(self):
         return " ".join(self._cron_str.split())
@@ -183,25 +193,16 @@ class CronParser:
     def _proc_weekday(self, index, parsed_data):
         if self._next_run_time.weekday() in parsed_data[index]:
             return self._next_run_time
-        for num in parsed_data[index]:
-            num = num - 1
-            if num < 0:
-                num = 6
-            if num == self._next_run_time.weekday():
-                break
-            else:
-                while num != self._next_run_time.weekday():
-                    self._next_run_time = self._next_run_time + timedelta(days=1)
-                    self._next_run_time = self._next_run_time.replace(minute=0)
-                    self._next_run_time = self._next_run_time.replace(hour=0)
-                    self._next_run_time = self._get_next_run_time()
+        else:
+            while self._next_run_time.weekday() not in parsed_data[index]:
+                self._next_run_time = self._next_run_time + timedelta(days=1)
+                self._next_run_time = self._next_run_time.replace(minute=0)
+                self._next_run_time = self._next_run_time.replace(hour=0)
+                self._next_run_time = self._get_next_run_time()
         return self._next_run_time
 
     def _get_next_run_time(self):
         parsed_data = self._parse_cron_str()
-
-        self._next_run_time = self._next_run_time + timedelta(minutes=1)
-        self._next_run_time = self._next_run_time.replace(second=0, microsecond=0)
         for index in range(0, 5):
             if index == 0:
                 self._next_run_time = self._proc_minute(index, parsed_data)
@@ -221,10 +222,11 @@ class CronParser:
             yield now
 
     def next(self):
+        self._next_run_time += timedelta(minutes=1)
         return self._get_next_run_time()
 
 
 if __name__ == "__main__":
-    cron = CronParser("* * * * *")
+    cron = CronParser("1 1 1 1 0-6")
     for _ in range(0, 10):
         print(cron.next())

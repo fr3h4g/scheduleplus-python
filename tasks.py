@@ -9,4 +9,6 @@ def lint(c):
 
 @task
 def test(c):
-    c.run("pytest --cov=scheduleplus  --cov=tests --cov-report=xml tests")
+    c.run(
+        "pytest --cov=scheduleplus  --cov=tests --cov-report=xml --cov-report=html tests"
+    )
