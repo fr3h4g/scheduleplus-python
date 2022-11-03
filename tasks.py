@@ -3,8 +3,8 @@ from invoke import task
 
 @task
 def lint(c):
-    c.run("flake8 src/swish_qr tests")
-    c.run("black src/swish_qr tests --check")
+    c.run("flake8 src/scheduleplus tests")
+    c.run("black src/scheduleplus tests --check")
 
 
 @task

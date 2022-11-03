@@ -1,0 +1,230 @@
+import datetime
+from datetime import timedelta
+
+
+RANGES = [
+    (0, 59),
+    (0, 23),
+    (1, 31),
+    (1, 12),
+    (0, 6),
+]
+
+ATTRIBUTES = [
+    "minute",
+    "hour",
+    "day",
+    "month",
+    "weekday",
+]
+
+ALIASES = {
+    "@yearly": "0 0 1 1 *",
+    "@annually": "0 0 1 1 *",
+    "@monthly": "0 0 1 * *",
+    "@weekly": "0 0 * * 0",
+    "@daily": "0 0 * * *",
+    "@hourly": "0 * * * *",
+}
+
+ISODAYS = {"sun": 0, "mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6}
+MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
+
+
+class CronParser:
+    def __init__(self, cron_str: str, now=None):
+        self._cron_str = cron_str
+        self._next_run_time = datetime.datetime.now()
+        if now:
+            self._next_run_time = now
+
+    def _trim_extra_whitespace(self):
+        return " ".join(self._cron_str.split())
+
+    def _parse_cron_str(self):
+        parsed_cron_data = []
+        self._cron_str = self._trim_extra_whitespace()
+        self._cron_str = self._replace_alias()
+        for part_index, part_str in enumerate(self._cron_str.split(" ")):
+            parsed_cron_data.append(self._parse_part(part_str, part_index))
+        return parsed_cron_data
+
+    def _replace_alias(self):
+        cron_str = self._cron_str.lower()
+        for index in ALIASES:
+            if index in cron_str:
+                cron_str = ALIASES[index]
+        return cron_str
+
+    def _replace_month_day(self, part_str: str, part_index: int):
+        part_str = part_str.lower()
+        if part_index == 4:
+            for index, day in enumerate(ISODAYS):
+                part_str = part_str.replace(day, str(index))
+        elif part_index == 3:
+            for index, month in enumerate(MONTHS):
+                part_str = part_str.replace(month, str(index + 1))
+        return part_str
+
+    def _parse_part(self, part_str: str, part_index: int):
+        part_str = self._replace_month_day(part_str, part_index)
+        return_list = []
+        for part in part_str.split(","):
+            start, end, step = RANGES[part_index][0], RANGES[part_index][1] + 1, 1
+            if part == "*":
+                for num in range(start, end, step):
+                    if num not in return_list:
+                        return_list.append(num)
+            elif "/" in part:
+                tmp = part.split("/")
+                if tmp[0] != "*":
+                    if "-" in tmp[0]:
+                        tmp2 = tmp[0].split("-")
+                        start, end = int(tmp2[0]), int(tmp2[1]) + 1
+                    else:
+                        start, end = int(tmp[0]), RANGES[part_index][1] + 1
+                step = int(tmp[1])
+                for num in range(start, end, step):
+                    if num not in return_list:
+                        return_list.append(num)
+            elif "-" in part:
+                tmp2 = part.split("-")
+                start, end = int(tmp2[0]), int(tmp2[1]) + 1
+                for num in range(start, end, step):
+                    if num not in return_list:
+                        return_list.append(num)
+            else:
+                if int(part) not in return_list and int(part) in range(
+                    RANGES[part_index][0], RANGES[part_index][1] + 1
+                ):
+                    return_list.append(int(part))
+        return_list.sort()
+        return return_list
+
+    def _proc_minute(self, index, parsed_data):
+        for num in parsed_data[index]:
+            if num >= self._next_run_time.minute:
+                self._next_run_time = self._next_run_time.replace(minute=num)
+                break
+        else:
+            self._next_run_time = self._next_run_time + timedelta(hours=1)
+            self._next_run_time = self._next_run_time.replace(minute=0)
+            self._next_run_time = self._proc_minute(index, parsed_data)
+        return self._next_run_time
+
+    def _proc_hour(self, index, parsed_data):
+        for num in parsed_data[index]:
+            if num >= self._next_run_time.hour:
+                self._next_run_time = self._next_run_time.replace(hour=num)
+                break
+        else:
+            self._next_run_time = self._next_run_time + timedelta(days=1)
+            self._next_run_time = self._next_run_time.replace(minute=0)
+            self._next_run_time = self._next_run_time.replace(hour=0)
+            self._next_run_time = self._proc_minute(0, parsed_data)
+            self._next_run_time = self._proc_hour(index, parsed_data)
+        return self._next_run_time
+
+    def _proc_day(self, index, parsed_data):
+        for num in parsed_data[index]:
+            if num >= self._next_run_time.day:
+                self._next_run_time = self._next_run_time.replace(day=num)
+                break
+        else:
+            self._next_run_time = self._next_run_time.replace(day=1)
+            self._next_run_time = self._next_run_time + timedelta(days=32)
+            self._next_run_time = self._next_run_time.replace(day=1)
+            self._next_run_time = self._next_run_time.replace(minute=0)
+            self._next_run_time = self._next_run_time.replace(hour=0)
+            self._next_run_time = self._proc_minute(0, parsed_data)
+            self._next_run_time = self._proc_hour(1, parsed_data)
+            self._next_run_time = self._proc_day(index, parsed_data)
+        return self._next_run_time
+
+    def _incr_year(self):
+        mod = self._next_run_time.year % 4
+        if mod == 0 and (self._next_run_time.month, self._next_run_time.day) < (2, 29):
+            return timedelta(days=365 + 1)
+        if mod == 3 and (self._next_run_time.month, self._next_run_time.day) > (2, 29):
+            return timedelta(days=365 + 1)
+        return timedelta(days=365)
+
+    def _proc_month(self, index, parsed_data):
+        for num in parsed_data[index]:
+            if num >= self._next_run_time.month:
+                self._next_run_time = self._next_run_time.replace(month=num)
+                break
+        else:
+            self._next_run_time = self._next_run_time.replace(month=1)
+            self._next_run_time = self._next_run_time + self._incr_year()
+            self._next_run_time = self._next_run_time.replace(month=1)
+            self._next_run_time = self._next_run_time.replace(day=1)
+            self._next_run_time = self._next_run_time.replace(minute=0)
+            self._next_run_time = self._next_run_time.replace(hour=0)
+            self._next_run_time = self._proc_minute(0, parsed_data)
+            self._next_run_time = self._proc_hour(1, parsed_data)
+            self._next_run_time = self._proc_day(2, parsed_data)
+            self._next_run_time = self._proc_month(index, parsed_data)
+        return self._next_run_time
+
+    def _proc_weekday(self, index, parsed_data):
+        if self._next_run_time.weekday() in parsed_data[index]:
+            return self._next_run_time
+        for num in parsed_data[index]:
+            num = num - 1
+            if num < 0:
+                num = 6
+            if num == self._next_run_time.weekday():
+                break
+            else:
+                while num != self._next_run_time.weekday():
+                    self._next_run_time = self._next_run_time + timedelta(days=1)
+                    self._next_run_time = self._next_run_time.replace(minute=0)
+                    self._next_run_time = self._next_run_time.replace(hour=0)
+                    self._next_run_time = self._get_next_run_time()
+        return self._next_run_time
+
+    def _get_next_run_time(self):
+        parsed_data = self._parse_cron_str()
+
+        self._next_run_time = self._next_run_time + timedelta(minutes=1)
+        self._next_run_time = self._next_run_time.replace(second=0, microsecond=0)
+        for index in range(0, 5):
+            if index == 0:
+                self._next_run_time = self._proc_minute(index, parsed_data)
+            if index == 1:
+                self._next_run_time = self._proc_hour(index, parsed_data)
+            if index == 2:
+                self._next_run_time = self._proc_day(index, parsed_data)
+            if index == 3:
+                self._next_run_time = self._proc_month(index, parsed_data)
+            if index == 4:
+                self._next_run_time = self._proc_weekday(index, parsed_data)
+        return self._next_run_time
+
+    def iter(self):
+        for _ in range(1, 11):
+            now = self._get_next_run_time()
+            yield now
+
+    def next(self):
+        return self._get_next_run_time()
+
+
+if __name__ == "__main__":
+    cron = CronParser("* * * * *")
+    for _ in range(0, 10):
+        print(cron.next())
