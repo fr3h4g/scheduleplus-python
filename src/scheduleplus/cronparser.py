@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+
 from workalendar.europe import Sweden
 
 RANGES = [
@@ -8,7 +9,7 @@ RANGES = [
     (1, 31),
     (1, 12),
     (0, 6),
-    (0, 2),
+    (0, 1),
 ]
 
 ATTRIBUTES = [
@@ -208,7 +209,7 @@ class CronParser:
         return self._next_run_time
 
     def _proc_holiday(self, index, parsed_data):
-        if [0, 1] in parsed_data[index]:
+        if [0, 1] == parsed_data[index]:
             return self._next_run_time
         if 0 in parsed_data[index]:
             if self._wk_country.is_working_day(self._next_run_time.date()):
@@ -232,6 +233,8 @@ class CronParser:
 
     def _get_next_run_time(self):
         parsed_data = self._parse_cron_str()
+        if len(parsed_data) < 5:
+            raise ValueError("Error in cron string, not 5 or 6 values")
         for index in range(0, len(parsed_data)):
             if index == 0:
                 self._next_run_time = self._proc_minute(index, parsed_data)

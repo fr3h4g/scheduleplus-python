@@ -1,6 +1,8 @@
 import datetime
 from datetime import datetime as dt
 
+import pytest
+
 from scheduleplus.cronparser import CronParser
 
 
@@ -37,3 +39,11 @@ def test_get_next_run_time():
 
     now = dt(2022, 5, 7, 10, 10)
     assert _run_test("* * * * * 0", now) == dt(2022, 5, 9, 0, 0)
+
+    assert _run_test("1 1 1 1 1 1", now) == dt(2030, 1, 1, 1, 1)
+
+    with pytest.raises(ValueError):
+        assert _run_test("1 1 1 1", now) == dt(2030, 1, 1, 1, 1)
+
+    with pytest.raises(RecursionError):
+        assert _run_test("1 1 1 1 1 0", now) == dt(2030, 1, 1, 1, 1)

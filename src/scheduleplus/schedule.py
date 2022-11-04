@@ -1,9 +1,10 @@
 import datetime
 import json
 
+from workalendar.europe import Sweden
+
 from scheduleplus.cronparser import CronParser
 from scheduleplus.text_table import table
-from workalendar.europe import Sweden
 
 
 class Job(object):
