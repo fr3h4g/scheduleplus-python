@@ -7,7 +7,7 @@ from scheduleplus.cronparser import CronParser
 def _run_test(crontab, now):
     cp = CronParser(crontab, now)
     now = now or datetime.datetime.now()
-    return cp.next()
+    return cp._get_next_run_time()
 
 
 def test_get_next_run_time():
@@ -23,10 +23,10 @@ def test_get_next_run_time():
 
     now = dt(2022, 5, 2, 10, 10)
     assert _run_test("* * * * mon", now) == dt(2022, 5, 2, 10, 11)
-    # assert _run_test("* * * * 1", now) == dt(2022, 5, 2, 10, 11)
-    # assert _run_test("* * * * 2", now) == dt(2022, 5, 3, 0, 0)
-    # assert _run_test("* * * * 3", now) == dt(2022, 5, 4, 0, 0)
-    # assert _run_test("* * * * 4", now) == dt(2022, 5, 5, 0, 0)
-    # assert _run_test("* * * * 5", now) == dt(2022, 5, 6, 0, 0)
-    # assert _run_test("* * * * 6", now) == dt(2022, 5, 7, 0, 0)
-    # assert _run_test("* * * * 7", now) == dt(2022, 5, 8, 0, 0)
+    assert _run_test("* * * * 0", now) == dt(2022, 5, 2, 10, 11)
+    assert _run_test("* * * * 1", now) == dt(2022, 5, 3, 0, 0)
+    assert _run_test("* * * * 2", now) == dt(2022, 5, 4, 0, 0)
+    assert _run_test("* * * * 3", now) == dt(2022, 5, 5, 0, 0)
+    assert _run_test("* * * * 4", now) == dt(2022, 5, 6, 0, 0)
+    assert _run_test("* * * * 5", now) == dt(2022, 5, 7, 0, 0)
+    assert _run_test("* * * * 6", now) == dt(2022, 5, 8, 0, 0)

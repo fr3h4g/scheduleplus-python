@@ -59,6 +59,7 @@ class CronParser:
         if now:
             self._next_run_time = now
         self._next_run_time = self._next_run_time.replace(second=0, microsecond=0)
+        self._next_run_time += timedelta(minutes=1)
 
     def _trim_extra_whitespace(self):
         return " ".join(self._cron_str.split())
@@ -215,7 +216,7 @@ class CronParser:
                 self._next_run_time = self._proc_weekday(index, parsed_data)
         return self._next_run_time
 
-    def _iter(self):
+    def iter(self):
         self._next_run_time += timedelta(minutes=1)
         return self._get_next_run_time()
 
