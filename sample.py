@@ -3,20 +3,18 @@ import time
 from scheduleplus.schedule import Scheduler
 
 
-def func(hej="", test=""):
-    print(f"Working func {hej} {test}...")
+def work(data):
+    print(f"Working func {data}...")
 
 
-def cool(hej="", test=""):
-    print(f"Working cool {hej} {test}...")
+def work2(data):
+    print(f"Working callback {data}...")
 
 
 schedule = Scheduler()
 
-schedule.cron("1 1 1 1 1").do_function(cool, "cool", "-")
-schedule.cron("* * * * *").do_function(func, 10, 20)
-schedule.cron("1 1 1 1 1").do_function(cool, "cool", "-")
-schedule.cron("* * * * * ").do_callback({"message": "cool"})
+schedule.cron("* * * * *").do_function(work, "test")
+schedule.cron("*/5 * * * *").do_callback({"message": "cool"})
 
 schedule.list_jobs()
 
@@ -27,5 +25,5 @@ def do_meta(meta):
 
 while True:
     schedule.run_function_jobs()
-    schedule.run_callback_jobs(do_meta)
+    schedule.run_callback_jobs(work2)
     time.sleep(1)
