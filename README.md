@@ -63,7 +63,7 @@ while True:
 schedule = Scheduler()
 
 schedule.cron("*/5 * * * *").do_function(work, "test")
-schedule.cron("*/5 * * * *").do_callback({"message": "cool"})
+schedule.cron("1 1 1 1 1").do_callback({"message": "cool"})
 
 schedule.list_jobs()
 ```
