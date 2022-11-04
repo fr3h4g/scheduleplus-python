@@ -70,7 +70,7 @@ schedule.list_jobs()
 
 Result
 
-```shell
+```
 Job id   Cron          Next run time         Time left             Function        Callback message
 -------- ------------- --------------------- --------------------- --------------- ---------------------
 1        */5 * * * *   2022-11-04 13:50:00   0:00:29               work('test')
