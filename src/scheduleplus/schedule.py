@@ -1,6 +1,5 @@
 import datetime
 import json
-from datetime import timedelta
 
 from scheduleplus.cronparser import CronParser
 from scheduleplus.text_table import table

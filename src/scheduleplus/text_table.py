@@ -1,6 +1,10 @@
 EXTRA_SPACE = 3
 
 
+def table_line(width):
+    return "".zfill(width - 1).replace("0", "-") + " "
+
+
 def table(column_names, table_data):
     col_sizes = {}
     for index, col in enumerate(column_names):
@@ -31,7 +35,3 @@ def table(column_names, table_data):
         data += "\n"
 
     return header + data
-
-
-def table_line(width):
-    return "".zfill(width - 1).replace("0", "-") + " "
