@@ -1,7 +1,6 @@
 import datetime
 from datetime import timedelta
 
-
 RANGES = [
     (0, 59),
     (0, 23),
@@ -36,6 +35,7 @@ ISODAYS = {
     "sat": 5,
     "sun": 6,
 }
+
 MONTHS = {
     "jan": 1,
     "feb": 2,
@@ -59,7 +59,6 @@ class CronParser:
         if now:
             self._next_run_time = now
         self._next_run_time = self._next_run_time.replace(second=0, microsecond=0)
-        # self._next_run_time = self._next_run_time + timedelta(minutes=1)
 
     def _trim_extra_whitespace(self):
         return " ".join(self._cron_str.split())
@@ -216,17 +215,9 @@ class CronParser:
                 self._next_run_time = self._proc_weekday(index, parsed_data)
         return self._next_run_time
 
-    def iter(self):
-        for _ in range(1, 11):
-            now = self._get_next_run_time()
-            yield now
-
-    def next(self):
+    def _iter(self):
         self._next_run_time += timedelta(minutes=1)
         return self._get_next_run_time()
 
-
-if __name__ == "__main__":
-    cron = CronParser("1 1 1 1 0-6")
-    for _ in range(0, 10):
-        print(cron.next())
+    def next_run_time(self):
+        return self._get_next_run_time()

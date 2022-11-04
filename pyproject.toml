@@ -25,4 +25,7 @@ dependencies = []
 "Homepage" = "https://github.com/fr4h4g/scheduleplus-python"
 
 [project.optional-dependencies]
-dev = ["black", "flake8", "pytest", "invoke", "pytest-cov"]
+dev = ["black", "flake8", "pytest", "invoke", "pytest-cov", "isort"]
+
+[tool.isort]
+profile = "black"
