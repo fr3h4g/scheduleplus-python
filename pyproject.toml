@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 keywords = []
-dependencies = []
+dependencies = ['workalendar']
 
 [project.urls]
 "Homepage" = "https://github.com/fr4h4g/scheduleplus-python"

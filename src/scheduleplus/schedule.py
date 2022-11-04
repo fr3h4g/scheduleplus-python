@@ -3,6 +3,7 @@ import json
 
 from scheduleplus.cronparser import CronParser
 from scheduleplus.text_table import table
+from workalendar.europe import Sweden
 
 
 class Job(object):
@@ -11,10 +12,13 @@ class Job(object):
     _callback_message = None
     _id = None
 
-    def __init__(self, job_id, cron_str, now=None) -> None:
+    def __init__(self, job_id, cron_str, now=None, wk_country=None) -> None:
+        if not wk_country:
+            wk_country = Sweden
         self._id = job_id
+        self._wk_country = wk_country
         self._cron_str = cron_str
-        self._cron_parser = CronParser(self._cron_str, now=now)
+        self._cron_parser = CronParser(self._cron_str, now=now, wk_country=wk_country)
 
     def do_function(self, func, *args, **kwargs):
         self._func = func
@@ -78,10 +82,13 @@ class Scheduler(object):
     def __init__(self):
         pass
 
-    def cron(self, cron_str, now=None):
+    def cron(self, cron_str, now=None, wk_country=None):
+        if not wk_country:
+            wk_country = Sweden
+        self._wk_country = wk_country
         job_id = self._next_job_id
         self._next_job_id += 1
-        job = Job(job_id, cron_str, now)
+        job = Job(job_id, cron_str, now, wk_country)
         self._jobs.append(job)
         self._jobs.sort(key=lambda a: a.next_run())
         return job

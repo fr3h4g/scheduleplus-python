@@ -30,3 +30,10 @@ def test_get_next_run_time():
     assert _run_test("* * * * 4", now) == dt(2022, 5, 6, 0, 0)
     assert _run_test("* * * * 5", now) == dt(2022, 5, 7, 0, 0)
     assert _run_test("* * * * 6", now) == dt(2022, 5, 8, 0, 0)
+
+    now = dt(2022, 5, 2, 10, 10)
+    assert _run_test("* * * * * 0", now) == dt(2022, 5, 2, 10, 11)
+    assert _run_test("* * * * * 1", now) == dt(2022, 5, 26, 0, 0)
+
+    now = dt(2022, 5, 7, 10, 10)
+    assert _run_test("* * * * * 0", now) == dt(2022, 5, 9, 0, 0)

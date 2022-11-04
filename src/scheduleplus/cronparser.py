@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+from workalendar.europe import Sweden
 
 RANGES = [
     (0, 59),
@@ -7,6 +8,7 @@ RANGES = [
     (1, 31),
     (1, 12),
     (0, 6),
+    (0, 2),
 ]
 
 ATTRIBUTES = [
@@ -53,7 +55,11 @@ MONTHS = {
 
 
 class CronParser:
-    def __init__(self, cron_str: str, now=None):
+    def __init__(self, cron_str: str, now=None, wk_country=None):
+        if not wk_country:
+            wk_country = Sweden()
+        self._wk_country = wk_country
+        # self._wk_country = self._wk_country
         self._cron_str = cron_str
         self._next_run_time = datetime.datetime.now()
         if now:
@@ -201,9 +207,32 @@ class CronParser:
                 self._next_run_time = self._get_next_run_time()
         return self._next_run_time
 
+    def _proc_holiday(self, index, parsed_data):
+        if [0, 1] in parsed_data[index]:
+            return self._next_run_time
+        if 0 in parsed_data[index]:
+            if self._wk_country.is_working_day(self._next_run_time.date()):
+                return self._next_run_time
+            else:
+                while not self._wk_country.is_working_day(self._next_run_time.date()):
+                    self._next_run_time = self._next_run_time + timedelta(days=1)
+                    self._next_run_time = self._next_run_time.replace(minute=0)
+                    self._next_run_time = self._next_run_time.replace(hour=0)
+                    self._next_run_time = self._get_next_run_time()
+        if 1 in parsed_data[index]:
+            if self._wk_country.is_holiday(self._next_run_time.date()):
+                return self._next_run_time
+            else:
+                while not self._wk_country.is_holiday(self._next_run_time.date()):
+                    self._next_run_time = self._next_run_time + timedelta(days=1)
+                    self._next_run_time = self._next_run_time.replace(minute=0)
+                    self._next_run_time = self._next_run_time.replace(hour=0)
+                    self._next_run_time = self._get_next_run_time()
+        return self._next_run_time
+
     def _get_next_run_time(self):
         parsed_data = self._parse_cron_str()
-        for index in range(0, 5):
+        for index in range(0, len(parsed_data)):
             if index == 0:
                 self._next_run_time = self._proc_minute(index, parsed_data)
             if index == 1:
@@ -214,6 +243,8 @@ class CronParser:
                 self._next_run_time = self._proc_month(index, parsed_data)
             if index == 4:
                 self._next_run_time = self._proc_weekday(index, parsed_data)
+            if index == 5:
+                self._next_run_time = self._proc_holiday(index, parsed_data)
         return self._next_run_time
 
     def iter(self):
