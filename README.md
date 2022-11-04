@@ -1,6 +1,6 @@
 # scheduleplus
 
-A scheduler built on cron syntax with weekend/holiday features
+A scheduler built on cron syntax with workday/holiday check feature
 
 | Atributes  | Allowed values | Allowed special characters | Required |
 | ---------- | -------------- | -------------------------- | -------- |
