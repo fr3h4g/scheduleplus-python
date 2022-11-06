@@ -42,8 +42,56 @@ def test_get_next_run_time():
 
     assert _run_test("1 1 1 1 1 1", now) == dt(2030, 1, 1, 1, 1)
 
+    now = dt(2022, 2, 2, 10, 10)
+    assert _run_test("3 3 3 3 *", now) == dt(2022, 3, 3, 3, 3)
+
+    now = dt(2023, 2, 2, 10, 10)
+    assert _run_test("3 3 3 3 * *", now) == dt(2023, 3, 3, 3, 3)
+
+
+def test_raises():
+    now = dt(2022, 5, 7, 10, 10)
     with pytest.raises(ValueError):
         assert _run_test("1 1 1 1", now) == dt(2030, 1, 1, 1, 1)
 
     with pytest.raises(RecursionError):
         assert _run_test("1 1 1 1 1 0", now) == dt(2030, 1, 1, 1, 1)
+
+
+def test_iter():
+    now = dt(2022, 2, 2, 10, 10)
+    crontab = "3 3 3 3 *"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 3, 3, 3, 3)
+    assert cp.iter() == dt(2023, 3, 3, 3, 3)
+    assert cp.iter() == dt(2024, 3, 3, 3, 3)
+    assert cp.iter() == dt(2025, 3, 3, 3, 3)
+    assert cp.iter() == dt(2026, 3, 3, 3, 3)
+    assert cp.iter() == dt(2027, 3, 3, 3, 3)
+    assert cp.iter() == dt(2028, 3, 3, 3, 3)
+    assert cp.iter() == dt(2029, 3, 3, 3, 3)
+    assert cp.iter() == dt(2030, 3, 3, 3, 3)
+    assert cp.iter() == dt(2031, 3, 3, 3, 3)
+
+
+def test_leap_year():
+    # TODO: This is not working
+
+    # now = dt(2022, 2, 1, 10, 10)
+    # crontab = "0 0 29 2 *"
+    # cp = CronParser(crontab, now)
+    # assert cp.iter() == dt(2024, 2, 29, 0, 0)
+    # assert cp.iter() == dt(2028, 2, 29, 0, 0)
+
+    now = dt(2022, 2, 27, 10, 10)
+    crontab = "0 0 * * *"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 2, 28, 0, 0)
+    assert cp.iter() == dt(2022, 3, 1, 0, 0)
+
+    now = dt(2024, 2, 27, 10, 10)
+    crontab = "0 0 * * *"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2024, 2, 28, 0, 0)
+    assert cp.iter() == dt(2024, 2, 29, 0, 0)
+    assert cp.iter() == dt(2024, 3, 1, 0, 0)
