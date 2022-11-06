@@ -185,7 +185,6 @@ class CronParser:
                 self._next_run_time = self._next_run_time.replace(month=num)
                 break
         else:
-            self._next_run_time = self._next_run_time.replace(month=1)
             self._next_run_time = self._next_run_time + self._incr_year()
             self._next_run_time = self._next_run_time.replace(month=1)
             self._next_run_time = self._next_run_time.replace(day=1)
