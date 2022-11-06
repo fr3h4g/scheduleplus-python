@@ -1,6 +1,6 @@
 import time
 
-from scheduleplus.schedule import Scheduler
+from scheduleplus.scheduler import Scheduler
 
 
 def work(data):

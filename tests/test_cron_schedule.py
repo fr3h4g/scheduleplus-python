@@ -1,6 +1,6 @@
 import datetime
 
-from scheduleplus.schedule import Scheduler
+from scheduleplus.scheduler import Scheduler
 
 
 def test_cron_every_5_min():
