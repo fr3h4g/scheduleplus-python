@@ -10,8 +10,6 @@ def table(column_names, table_data):
     for index, col in enumerate(column_names):
         if index not in col_sizes:
             col_sizes[index] = len(col) + EXTRA_SPACE
-        if len(col) + EXTRA_SPACE > col_sizes[index]:
-            col_sizes[index] = len(col) + EXTRA_SPACE
 
     for row in table_data:
         for index, col in enumerate(row):
