@@ -160,19 +160,24 @@ class CronParser:
         return self._next_run_time
 
     def _proc_day(self, index, parsed_data):
-        for num in parsed_data[index]:
-            if num >= self._next_run_time.day:
-                self._next_run_time = self._next_run_time.replace(day=num)
-                break
-        else:
-            self._next_run_time = self._next_run_time.replace(day=1)
+        if parsed_data[index] == ["L"]:
             self._next_run_time = self._next_run_time + timedelta(days=32)
             self._next_run_time = self._next_run_time.replace(day=1)
-            self._next_run_time = self._next_run_time.replace(minute=0)
-            self._next_run_time = self._next_run_time.replace(hour=0)
-            self._next_run_time = self._proc_minute(0, parsed_data)
-            self._next_run_time = self._proc_hour(1, parsed_data)
-            self._next_run_time = self._proc_day(index, parsed_data)
+            self._next_run_time = self._next_run_time - timedelta(days=1)
+        else:
+            for num in parsed_data[index]:
+                if num >= self._next_run_time.day:
+                    self._next_run_time = self._next_run_time.replace(day=num)
+                    break
+            else:
+                self._next_run_time = self._next_run_time.replace(day=1)
+                self._next_run_time = self._next_run_time + timedelta(days=32)
+                self._next_run_time = self._next_run_time.replace(day=1)
+                self._next_run_time = self._next_run_time.replace(minute=0)
+                self._next_run_time = self._next_run_time.replace(hour=0)
+                self._next_run_time = self._proc_minute(0, parsed_data)
+                self._next_run_time = self._proc_hour(1, parsed_data)
+                self._next_run_time = self._proc_day(index, parsed_data)
         return self._next_run_time
 
     def _incr_year(self):

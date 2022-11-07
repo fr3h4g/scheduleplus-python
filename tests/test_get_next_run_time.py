@@ -109,3 +109,10 @@ def test_first_weekday_of_month():
     crontab = "0 0 * * F"
     cp = CronParser(crontab, now)
     assert cp.iter() == dt(2022, 1, 3, 0, 0)
+
+
+def test_last_day_of_month():
+    now = dt(2022, 1, 1, 10, 10)
+    crontab = "0 0 L * *"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 1, 31, 0, 0)
