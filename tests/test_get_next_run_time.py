@@ -76,7 +76,6 @@ def test_iter():
 
 def test_leap_year():
     # TODO: This is not working
-
     # now = dt(2022, 2, 1, 10, 10)
     # crontab = "0 0 29 2 *"
     # cp = CronParser(crontab, now)
@@ -102,13 +101,23 @@ def test_last_weekday_of_month():
     crontab = "0 0 * * L"
     cp = CronParser(crontab, now)
     assert cp.iter() == dt(2022, 7, 29, 0, 0)
+    assert cp.iter() == dt(2022, 8, 31, 0, 0)
+    assert cp.iter() == dt(2022, 9, 30, 0, 0)
+    assert cp.iter() == dt(2022, 10, 31, 0, 0)
+    assert cp.iter() == dt(2022, 11, 30, 0, 0)
+    assert cp.iter() == dt(2022, 12, 30, 0, 0)
+    assert cp.iter() == dt(2023, 1, 31, 0, 0)
+    assert cp.iter() == dt(2023, 2, 28, 0, 0)
+    assert cp.iter() == dt(2023, 3, 31, 0, 0)
+    assert cp.iter() == dt(2023, 4, 28, 0, 0)
 
 
 def test_first_weekday_of_month():
-    now = dt(2022, 1, 1, 10, 10)
+    now = dt(2021, 12, 1, 10, 10)
     crontab = "0 0 * * F"
     cp = CronParser(crontab, now)
     assert cp.iter() == dt(2022, 1, 3, 0, 0)
+    assert cp.iter() == dt(2022, 2, 1, 0, 0)
 
 
 def test_last_day_of_month():
@@ -116,3 +125,5 @@ def test_last_day_of_month():
     crontab = "0 0 L * *"
     cp = CronParser(crontab, now)
     assert cp.iter() == dt(2022, 1, 31, 0, 0)
+    assert cp.iter() == dt(2022, 2, 28, 0, 0)
+    assert cp.iter() == dt(2022, 3, 31, 0, 0)

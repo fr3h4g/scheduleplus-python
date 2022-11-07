@@ -1,4 +1,5 @@
 import datetime
+import calendar
 from datetime import timedelta
 
 from workalendar.europe import Sweden
@@ -161,9 +162,13 @@ class CronParser:
 
     def _proc_day(self, index, parsed_data):
         if parsed_data[index] == ["L"]:
-            self._next_run_time = self._next_run_time + timedelta(days=32)
-            self._next_run_time = self._next_run_time.replace(day=1)
-            self._next_run_time = self._next_run_time - timedelta(days=1)
+            days_of_month = calendar.monthrange(
+                self._next_run_time.month, self._next_run_time.month
+            )[1]
+            if days_of_month == self._next_run_time.day:
+                self._next_run_time = self._next_run_time + timedelta(days=1)
+            self._next_run_time = self._next_run_time.replace(day=days_of_month)
+            # self._next_run_time = self._next_run_time - timedelta(days=1)
         else:
             for num in parsed_data[index]:
                 if num >= self._next_run_time.day:
@@ -210,15 +215,24 @@ class CronParser:
             return self._next_run_time
         else:
             if parsed_data[index] == ["F"]:
+                self._next_run_time = self._next_run_time + timedelta(days=32)
                 self._next_run_time = self._next_run_time.replace(day=1)
                 while not self._wk_country.is_working_day(self._next_run_time.date()):
                     self._next_run_time = self._next_run_time + timedelta(days=1)
             elif parsed_data[index] == ["L"]:
-                self._next_run_time = self._next_run_time + timedelta(days=32)
-                self._next_run_time = self._next_run_time.replace(day=1)
-                self._next_run_time = self._next_run_time - timedelta(days=1)
+                days_of_month = calendar.monthrange(
+                    self._next_run_time.month, self._next_run_time.month
+                )[1]
+                self._next_run_time = self._next_run_time.replace(day=days_of_month)
                 while not self._wk_country.is_working_day(self._next_run_time.date()):
                     self._next_run_time = self._next_run_time - timedelta(days=1)
+                if self._last_run_time >= self._next_run_time:
+                    self._next_run_time = self._next_run_time + timedelta(days=32)
+                    self._next_run_time = self._next_run_time.replace(day=days_of_month)
+                    while not self._wk_country.is_working_day(
+                        self._next_run_time.date()
+                    ):
+                        self._next_run_time = self._next_run_time - timedelta(days=1)
             else:
                 while self._next_run_time.weekday() not in parsed_data[index]:
                     self._next_run_time = self._next_run_time + timedelta(days=1)
@@ -251,6 +265,7 @@ class CronParser:
         return self._next_run_time
 
     def _get_next_run_time(self):
+        self._last_run_time = self._next_run_time
         parsed_data = self._parse_cron_str()
         if len(parsed_data) < 5:
             raise ValueError("Error in cron string, not 5 or 6 values")
