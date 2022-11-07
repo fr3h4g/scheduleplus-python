@@ -95,3 +95,17 @@ def test_leap_year():
     assert cp.iter() == dt(2024, 2, 28, 0, 0)
     assert cp.iter() == dt(2024, 2, 29, 0, 0)
     assert cp.iter() == dt(2024, 3, 1, 0, 0)
+
+
+def test_last_weekday_of_month():
+    now = dt(2022, 7, 1, 10, 10)
+    crontab = "0 0 * * L"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 7, 29, 0, 0)
+
+
+def test_first_weekday_of_month():
+    now = dt(2022, 1, 1, 10, 10)
+    crontab = "0 0 * * F"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 1, 3, 0, 0)

@@ -123,6 +123,10 @@ class CronParser:
                 for num in range(start, end, step):
                     if num not in return_list:
                         return_list.append(num)
+            elif part_str.upper() == "F":
+                return_list.append("F")
+            elif part_str.upper() == "L":
+                return_list.append("L")
             else:
                 if int(part) not in return_list and int(part) in range(
                     RANGES[part_index][0], RANGES[part_index][1] + 1
@@ -200,11 +204,22 @@ class CronParser:
         if self._next_run_time.weekday() in parsed_data[index]:
             return self._next_run_time
         else:
-            while self._next_run_time.weekday() not in parsed_data[index]:
-                self._next_run_time = self._next_run_time + timedelta(days=1)
-                self._next_run_time = self._next_run_time.replace(minute=0)
-                self._next_run_time = self._next_run_time.replace(hour=0)
-                self._next_run_time = self._get_next_run_time()
+            if parsed_data[index] == ["F"]:
+                self._next_run_time = self._next_run_time.replace(day=1)
+                while not self._wk_country.is_working_day(self._next_run_time.date()):
+                    self._next_run_time = self._next_run_time + timedelta(days=1)
+            elif parsed_data[index] == ["L"]:
+                self._next_run_time = self._next_run_time + timedelta(days=32)
+                self._next_run_time = self._next_run_time.replace(day=1)
+                self._next_run_time = self._next_run_time - timedelta(days=1)
+                while not self._wk_country.is_working_day(self._next_run_time.date()):
+                    self._next_run_time = self._next_run_time - timedelta(days=1)
+            else:
+                while self._next_run_time.weekday() not in parsed_data[index]:
+                    self._next_run_time = self._next_run_time + timedelta(days=1)
+                    self._next_run_time = self._next_run_time.replace(minute=0)
+                    self._next_run_time = self._next_run_time.replace(hour=0)
+                    self._next_run_time = self._get_next_run_time()
         return self._next_run_time
 
     def _proc_holiday(self, index, parsed_data):

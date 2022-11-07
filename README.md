@@ -8,7 +8,7 @@ A scheduler built on cron syntax with workday/holiday check feature
 | Hours      | 0-23           | \* , - /                   | Yes      |
 | Days       | 1-31           | \* , - /                   | Yes      |
 | Months     | 1-12, JAN-DEC  | \* , - /                   | Yes      |
-| Weekdays   | 0-6, MON-SUN   | \* , - /                   | Yes      |
+| Weekdays   | 0-6, MON-SUN   | \* , - / F L               | Yes      |
 | Holiday(\* | 0, 1           | \*                         | No       |
 
 ### Holiday\*
