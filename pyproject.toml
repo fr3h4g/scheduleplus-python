@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scheduleplus"
-version = "0.1.0"
+version = "0.1."
 authors = [{ name = "Fredrik Haglund", email = "fr4h4g@gmail.com" }]
 description = "A scheduler built on cron syntax with weekend/holiday features"
 license = { text = "LICENSE" }
