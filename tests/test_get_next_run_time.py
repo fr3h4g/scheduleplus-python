@@ -127,3 +127,14 @@ def test_last_day_of_month():
     assert cp.iter() == dt(2022, 1, 31, 0, 0)
     assert cp.iter() == dt(2022, 2, 28, 0, 0)
     assert cp.iter() == dt(2022, 3, 31, 0, 0)
+
+
+def test_weekday_no_holiday():
+    now = dt(2022, 1, 1, 10, 10)
+    crontab = "0 0 * * MON-FRI 0"
+    cp = CronParser(crontab, now)
+    assert cp.iter() == dt(2022, 1, 3, 0, 0)
+    assert cp.iter() == dt(2022, 1, 4, 0, 0)
+    assert cp.iter() == dt(2022, 1, 5, 0, 0)
+    assert cp.iter() == dt(2022, 1, 7, 0, 0)
+    assert cp.iter() == dt(2022, 1, 10, 0, 0)
